@@ -9,6 +9,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 public class CellValue {
   private Excel3000 parent;
   private String value;
+  private String expString;
   private Expression expression;
   private Set<String> variables = new HashSet<>();
   private char refSign;
@@ -17,6 +18,7 @@ public class CellValue {
   public CellValue(String value, char refSign, Excel3000 parent) {
     this.parent = parent;
     this.value = value;
+    this.expString = value;
     this.refSign = refSign;
     if (value.startsWith("=")) {
       extractVariables(value.substring(1));
@@ -34,7 +36,6 @@ public class CellValue {
   }
   public String showResult(){
     double result = evaluate();
-    expression = new ExpressionBuilder(String.valueOf(result)).build();
     value = String.valueOf(result);
     return value;
   }
@@ -43,4 +44,11 @@ public class CellValue {
         matchResult -> variables.add(matchResult.group().replace(String.valueOf(refSign), "")));
   }
 
+  public String getValue() {
+    return value;
+  }
+
+  public String getExpString() {
+    return expString;
+  }
 }
