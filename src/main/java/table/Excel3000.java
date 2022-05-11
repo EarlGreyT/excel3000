@@ -9,19 +9,17 @@ import com.google.common.math.IntMath;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
 
 
 public class Excel3000 {
 
-  private Table<Integer, Integer, String> sheet = HashBasedTable.create();
-  private Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
+  private final Table<Integer, Integer, String> sheet = HashBasedTable.create();
+  private final Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
   private static final BiMap<Character, Integer> rowMapping = HashBiMap.create();
   private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[0-9][0-9]*$");
-  private static final String refSign = "$";
+  private static final String REF_SIGN = "$";
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   static {
@@ -33,10 +31,10 @@ public class Excel3000 {
 
   private static String getRowName(int row) {
     ArrayList<Integer> remainders = new ArrayList<>();
-    int divident = row;
-    while (divident >= 0) {
-      remainders.add(divident % ALPHABET.length());
-      divident = IntMath.divide(divident, ALPHABET.length(), RoundingMode.DOWN);
+    int dividend = row;
+    while (dividend >= 0) {
+      remainders.add(dividend % ALPHABET.length());
+      dividend = IntMath.divide(dividend, ALPHABET.length(), RoundingMode.DOWN);
     }
     Collections.reverse(remainders);
     return remainders.stream().collect(StringBuilder::new,
@@ -85,7 +83,7 @@ public class Excel3000 {
 
   public void setCell(int row, int col, String value) {
     sheet.put(row, col, value);
-    sheetValues.put(row, col, new CellValue(value, refSign, this));
+    sheetValues.put(row, col, new CellValue(value, REF_SIGN, this));
   }
 
   public void setCell(String cell, String value) throws IllegalArgumentException {
@@ -103,7 +101,10 @@ public class Excel3000 {
     for (Integer i : sheet.rowKeySet()) {
       for (Integer j : sheet.columnKeySet()) {
         if (sheet.get(i, j) != null) {
-          sheet.put(i, j, getCellValueAt(i, j).showResult());
+          CellValue cellValue = getCellValueAt(i, j);
+          if (cellValue!= null) {
+            sheet.put(i, j, cellValue.showResult());
+          }
         }
       }
     }
