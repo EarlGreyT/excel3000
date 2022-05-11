@@ -33,6 +33,8 @@ public class Main {
     XlsxWriter.writeToExcellFile("NoCircleNoEval.xlsx",excel3001);
     excel3001.evaluate();
     XlsxWriter.writeToExcellFile("NCircleEval.xlsx",excel3001);
+    excel3001.devaluate();
+    XlsxWriter.writeToExcellFile("NCircleDEval.xlsx",excel3001);
     System.out.println(excel3001);
   }
 }

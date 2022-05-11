@@ -11,7 +11,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import table.Excel3000;
 
 public class XlsxWriter {
-
   public static void writeToExcellFile(String name, Excel3000 table) throws IOException {
     try (Workbook wb = new XSSFWorkbook(); FileOutputStream fOut = new FileOutputStream(name)) {
       Sheet s = wb.createSheet();

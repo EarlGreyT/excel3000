@@ -102,7 +102,18 @@ public class Excel3000 {
     int[] coords = getCoords(variable);
     return getCellValueAt(coords[0], coords[1]);
   }
-
+  public void devaluate() {
+    for (Integer i : sheet.rowKeySet()) {
+      for (Integer j : sheet.columnKeySet()) {
+        if (sheet.get(i, j) != null) {
+          CellValue cellValue = getCellValueAt(i, j);
+          if (cellValue != null) {
+            sheet.put(i, j, cellValue.getValue());
+          }
+        }
+      }
+    }
+  }
   public void evaluate() {
     for (Integer i : sheet.rowKeySet()) {
       for (Integer j : sheet.columnKeySet()) {

@@ -12,7 +12,6 @@ class CellValue {
   public static final String VARIABLE_PATTERN = "[A-Z]+[1-9][0-9]*";
   private final Excel3000 parent;
   private String value;
-  private final String expString;
   private final Expression expression;
   private final Set<String> variables = new HashSet<>();
 
@@ -21,7 +20,6 @@ class CellValue {
   public CellValue(String value, Excel3000 parent) {
     this.parent = parent;
     this.value = value;
-    this.expString = value;
     variablePattern = Pattern.compile(VARIABLE_PATTERN);
     if (value == null) {
       value = "";
@@ -41,7 +39,7 @@ class CellValue {
 
   private double evaluate(Set<CellValue> visitedCells) throws ArithmeticException {
     if (visitedCells.contains(this)) {
-      throw new IllegalStateException(this.expString);
+      throw new IllegalStateException(this.value);
     }
     visitedCells.add(this);
     for (String variable : variables) {
@@ -54,11 +52,9 @@ class CellValue {
 
   public String showResult(Set<CellValue> visitedCells) {
     try {
-      value = String.valueOf(evaluate(visitedCells));
-      return value;
+      return String.valueOf(evaluate(visitedCells));
     } catch (IllegalStateException e) {
-      value = "Cyclic Ref: " + e.getMessage();
-      return value;
+      return "Cyclic Ref: " + e.getMessage();
     }
 
   }
@@ -71,4 +67,7 @@ class CellValue {
     }
   }
 
+  public String getValue() {
+    return value;
+  }
 }
