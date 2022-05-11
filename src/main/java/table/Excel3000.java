@@ -16,7 +16,7 @@ public class Excel3000 {
   private Table<Integer, Integer, String> sheet = HashBasedTable.create();
   private Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
   private static final BiMap<Character, Integer> rowMapping = HashBiMap.create();
-  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[0-9][1-9]*$");
+  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[0-9][0-9]*$");
   private static final String refSign = "$";
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
