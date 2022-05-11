@@ -9,11 +9,13 @@ import com.google.common.math.IntMath;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 
 public class Excel3000 {
-
+  private static final Set<CellValue> visitedCells = new HashSet<>();
   private final Table<Integer, Integer, String> sheet = HashBasedTable.create();
   private final Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
   private static final BiMap<Character, Integer> rowMapping = HashBiMap.create();
@@ -106,7 +108,7 @@ public class Excel3000 {
         if (sheet.get(i, j) != null) {
           CellValue cellValue = getCellValueAt(i, j);
           if (cellValue != null) {
-            sheet.put(i, j, cellValue.showResult());
+            sheet.put(i, j, cellValue.showResult(visitedCells));
           }
         }
       }

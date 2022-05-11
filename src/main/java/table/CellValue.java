@@ -16,8 +16,6 @@ class CellValue {
   private Set<String> variables = new HashSet<>();
 
   private Pattern variablePattern;
-  private Set<CellValue> callSet = new HashSet<>();
-  private boolean visited = false;
   public CellValue(String value, Excel3000 parent) {
     this.parent = parent;
     this.value = value;
@@ -41,46 +39,27 @@ class CellValue {
 
   }
 
-  private static boolean checkCircle(CellValue callValue, CellValue caller, CellValue origin) {
-    caller.visited = true;
-    if (caller.callSet.contains(callValue)){
-      return false;
-    }
-    if (origin.visited){
-      return true;
-    }
-    for (CellValue value : callValue.callSet) {
-      if (checkCircle(caller,callValue, origin)){
-        return true;
-      }
-    }
-    return false;
-  }
 
-  private double evaluate(CellValue caller) throws ArithmeticException {
-    callSet.add(caller);
-    if (checkCircle(this, caller, this)) {
-      visited = false;
-      callSet.forEach(c -> c.visited = false);
-      throw new IllegalCallerException(callSet.stream().collect(StringBuilder::new,
-          (StringBuilder sb, CellValue cv) -> sb.append(cv.expString + " "),
-          StringBuilder::append).toString());
+  private double evaluate(Set<CellValue> visitedCells) throws ArithmeticException {
+    if(visitedCells.contains(this)){
+      throw new IllegalStateException(this.expString);
     }
+    visitedCells.add(this);
     for (String variable : variables) {
       CellValue neededExp = parent.getCellValueAt(variable);
-      expression.setVariable(variable, neededExp.evaluate(this));
+      expression.setVariable(variable, neededExp.evaluate(visitedCells));
     }
-    visited = false;
-    callSet.forEach(c -> c.visited = false);
+    visitedCells.remove(this);
     return expression.evaluate();
   }
 
-  public String showResult() {
+  public String showResult(Set<CellValue> visitedCells) {
     try {
-      value = String.valueOf(evaluate(this));
+      value = String.valueOf(evaluate(visitedCells));
       return value;
-    } catch (IllegalCallerException e) {
-      return "#Cyclic Ref: " + e.getMessage();
+    }catch (IllegalStateException e){
+      value="Cyclic Ref: " + e.getMessage();
+      return value;
     }
 
   }
