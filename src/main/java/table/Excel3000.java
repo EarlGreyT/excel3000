@@ -6,9 +6,13 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Table;
 import com.google.common.math.IntMath;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 public class Excel3000 {
@@ -25,6 +29,19 @@ public class Excel3000 {
     for (int i = 0; i < alphabet.length; i++) {
       rowMapping.put(alphabet[i], i);
     }
+  }
+
+  private static String getRowName(int row) {
+    ArrayList<Integer> remainders = new ArrayList<>();
+    int divident = row;
+    while (divident >= 0) {
+      remainders.add(divident % ALPHABET.length());
+      divident = IntMath.divide(divident, ALPHABET.length(), RoundingMode.DOWN);
+    }
+    Collections.reverse(remainders);
+    return remainders.stream().collect(StringBuilder::new,
+        ((StringBuilder sb, Integer i) -> sb.append(rowMapping.inverse().get(i))),
+        StringBuilder::append).toString();
   }
 
   private static int getRowNumber(String cell) throws IllegalArgumentException {
@@ -53,7 +70,9 @@ public class Excel3000 {
   static int[] getCoords(String cell) {
     int[] coords = new int[2];
     int row = getRowNumber(cell);
-    int col = Integer.parseInt(cell.chars().filter(Character::isDigit).collect(StringBuilder::new,StringBuilder::appendCodePoint,StringBuilder::append).toString());
+    int col = Integer.parseInt(cell.chars().filter(Character::isDigit)
+        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+        .toString());
     coords[0] = row;
     coords[1] = col;
     return coords;
@@ -66,7 +85,7 @@ public class Excel3000 {
 
   public void setCell(int row, int col, String value) {
     sheet.put(row, col, value);
-    sheetValues.put(row,col, new CellValue(value,refSign,this));
+    sheetValues.put(row, col, new CellValue(value, refSign, this));
   }
 
   public void setCell(String cell, String value) throws IllegalArgumentException {
@@ -83,7 +102,7 @@ public class Excel3000 {
   public void evaluate() {
     for (Integer i : sheet.rowKeySet()) {
       for (Integer j : sheet.columnKeySet()) {
-        if (sheet.get(i,j)!=null){
+        if (sheet.get(i, j) != null) {
           sheet.put(i, j, getCellValueAt(i, j).showResult());
         }
       }
@@ -96,7 +115,7 @@ public class Excel3000 {
   }
 
   private CellValue getCellValueAt(int row, int col) {
-   return sheetValues.get(row, col);
+    return sheetValues.get(row, col);
   }
 }
 
