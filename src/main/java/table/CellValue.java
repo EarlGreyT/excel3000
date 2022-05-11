@@ -7,23 +7,23 @@ import java.util.regex.Pattern;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
-public class CellValue {
+class CellValue {
 
   private Excel3000 parent;
   private String value;
   private String expString;
   private Expression expression;
   private Set<String> variables = new HashSet<>();
-  private String refSign;
+
   private Pattern variablePattern;
   private Set<CellValue> callSet = new HashSet<>();
   private boolean visited = false;
-  public CellValue(String value, String refSign, Excel3000 parent) {
+  public CellValue(String value, Excel3000 parent) {
     this.parent = parent;
     this.value = value;
     this.expString = value;
-    this.refSign = refSign;
-    variablePattern = Pattern.compile("\\" + refSign + "[A-Z]+[0-9]+");
+
+    variablePattern = Pattern.compile("[A-Z]+[0-9]+");
     if(value == null){
       value="";
     }

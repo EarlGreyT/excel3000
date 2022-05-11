@@ -12,14 +12,13 @@ import java.util.Collections;
 import java.util.regex.Pattern;
 
 
-
 public class Excel3000 {
 
   private final Table<Integer, Integer, String> sheet = HashBasedTable.create();
   private final Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
   private static final BiMap<Character, Integer> rowMapping = HashBiMap.create();
-  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[0-9][0-9]*$");
-  private static final String REF_SIGN = "$";
+  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[1-9][0-9]*$");
+
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   static {
@@ -56,13 +55,19 @@ public class Excel3000 {
       // Hexadecimal 111 = 1*16^2+1*16^1+1*16^0
       // but our base is the length of the ALPHABET.
       row += rowMapping.get(rowChars[i]) * IntMath.pow(
-          1 + rowMapping.get(ALPHABET.charAt(ALPHABET.length() - 1)), rowChars.length - (i + 1));
+          rowMapping.get(ALPHABET.charAt(ALPHABET.length() - 1)), rowChars.length - (i + 1));
     }
+    System.out.println(cell);
+    System.out.println(row);
     return row;
   }
 
   public String getCellAt(int row, int col) {
-    return sheet.get(row, col);
+    String value = sheet.get(row, col);
+    if (value == null) {
+      value = "";
+    }
+    return value;
   }
 
   static int[] getCoords(String cell) {
@@ -83,7 +88,7 @@ public class Excel3000 {
 
   public void setCell(int row, int col, String value) {
     sheet.put(row, col, value);
-    sheetValues.put(row, col, new CellValue(value, REF_SIGN, this));
+    sheetValues.put(row, col, new CellValue(value, this));
   }
 
   public void setCell(String cell, String value) throws IllegalArgumentException {
@@ -102,12 +107,16 @@ public class Excel3000 {
       for (Integer j : sheet.columnKeySet()) {
         if (sheet.get(i, j) != null) {
           CellValue cellValue = getCellValueAt(i, j);
-          if (cellValue!= null) {
+          if (cellValue != null) {
             sheet.put(i, j, cellValue.showResult());
           }
         }
       }
     }
+  }
+
+  public Table<Integer, Integer, String> getSheet() {
+    return sheet;
   }
 
   @Override
