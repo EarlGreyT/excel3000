@@ -7,6 +7,7 @@ public class Main {
 
   public static void main(String[] args) throws IOException {
     Excel3000 excel3000 = new Excel3000();
+    Excel3000 excel3001 = new Excel3000();
     //circle
 
     excel3000.setCell("A1","4");
@@ -23,15 +24,15 @@ public class Main {
     System.out.println(excel3000);
 
     //no circle
-    excel3000.setCell("A1","4");
-    excel3000.setCell("A2", "=A1+4");
-    excel3000.setCell("A3", "=A6+4");
-    excel3000.setCell("A4", "=A2+4");
-    excel3000.setCell("A5", "=A2+4");
-    excel3000.setCell("A6", "=A4+4");
-    XlsxWriter.writeToExcellFile("NoCircleNoEval.xlsx",excel3000);
-    excel3000.evaluate();
-    XlsxWriter.writeToExcellFile("NCircleEval.xlsx",excel3000);
-    System.out.println(excel3000);
+    excel3001.setCell("A1","4");
+    excel3001.setCell("A2", "=A1+4");
+    excel3001.setCell("A3", "=A6+4");
+    excel3001.setCell("A4", "=A2+4");
+    excel3001.setCell("A5", "=A2+4");
+    excel3001.setCell("A6", "=A4+4");
+    XlsxWriter.writeToExcellFile("NoCircleNoEval.xlsx",excel3001);
+    excel3001.evaluate();
+    XlsxWriter.writeToExcellFile("NCircleEval.xlsx",excel3001);
+    System.out.println(excel3001);
   }
 }

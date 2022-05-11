@@ -61,7 +61,7 @@ class CellValue {
     callSet.add(caller);
     if (checkCircle(this, caller, this)) {
       visited = false;
-      caller.visited = false;
+      callSet.forEach(c -> c.visited = false);
       throw new IllegalCallerException(callSet.stream().collect(StringBuilder::new,
           (StringBuilder sb, CellValue cv) -> sb.append(cv.expString + " "),
           StringBuilder::append).toString());
@@ -71,7 +71,7 @@ class CellValue {
       expression.setVariable(variable, neededExp.evaluate(this));
     }
     visited = false;
-    caller.visited = false;
+    callSet.forEach(c -> c.visited = false);
     return expression.evaluate();
   }
 
