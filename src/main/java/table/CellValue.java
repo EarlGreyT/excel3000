@@ -10,24 +10,25 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 class CellValue {
 
   public static final String VARIABLE_PATTERN = "[A-Z]+[1-9][0-9]*";
-  private Excel3000 parent;
+  private final Excel3000 parent;
   private String value;
-  private String expString;
-  private Expression expression;
-  private Set<String> variables = new HashSet<>();
+  private final String expString;
+  private final Expression expression;
+  private final Set<String> variables = new HashSet<>();
 
-  private Pattern variablePattern;
+  private final Pattern variablePattern;
+
   public CellValue(String value, Excel3000 parent) {
     this.parent = parent;
     this.value = value;
     this.expString = value;
     variablePattern = Pattern.compile(VARIABLE_PATTERN);
-    if(value == null){
-      value="";
+    if (value == null) {
+      value = "";
     }
     if (value.startsWith("=")) {
       extractVariables(value.substring(1));
-      expression = new ExpressionBuilder(value.substring(1).replaceAll("\\$", "")).variables(
+      expression = new ExpressionBuilder(value.substring(1)).variables(
           variables).build();
     } else {
       if (!value.equals("")) {
@@ -36,11 +37,10 @@ class CellValue {
         expression = null;
       }
     }
-
   }
 
   private double evaluate(Set<CellValue> visitedCells) throws ArithmeticException {
-    if(visitedCells.contains(this)){
+    if (visitedCells.contains(this)) {
       throw new IllegalStateException(this.expString);
     }
     visitedCells.add(this);
@@ -56,8 +56,8 @@ class CellValue {
     try {
       value = String.valueOf(evaluate(visitedCells));
       return value;
-    }catch (IllegalStateException e){
-      value="Cyclic Ref: " + e.getMessage();
+    } catch (IllegalStateException e) {
+      value = "Cyclic Ref: " + e.getMessage();
       return value;
     }
 
@@ -66,17 +66,9 @@ class CellValue {
   private void extractVariables(String value) {
     Matcher matcher = variablePattern.matcher(value);
     while (matcher.find()) {
-      String group = matcher.group().replaceAll("\\$", "");
+      String group = matcher.group();
       variables.add(group);
     }
-
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  public String getExpString() {
-    return expString;
-  }
 }
