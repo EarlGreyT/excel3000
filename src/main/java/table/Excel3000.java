@@ -16,8 +16,8 @@ public class Excel3000 {
   private Table<Integer, Integer, String> sheet = HashBasedTable.create();
   private Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
   private static final BiMap<Character, Integer> rowMapping = HashBiMap.create();
-  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[1-9]+$");
-  private static final char refSign ='$';
+  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[0-9][1-9]*$");
+  private static final String refSign = "$";
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   static {
@@ -41,7 +41,7 @@ public class Excel3000 {
       // Hexadecimal 111 = 1*16^2+1*16^1+1*16^0
       // but our base is the length of the ALPHABET.
       row += rowMapping.get(rowChars[i]) * IntMath.pow(
-          1 + rowMapping.get(ALPHABET.charAt(ALPHABET.length() - 1)), rowChars.length-(i+1));
+          1 + rowMapping.get(ALPHABET.charAt(ALPHABET.length() - 1)), rowChars.length - (i + 1));
     }
     return row;
   }
@@ -53,7 +53,7 @@ public class Excel3000 {
   static int[] getCoords(String cell) {
     int[] coords = new int[2];
     int row = getRowNumber(cell);
-    int col = (int) cell.chars().filter(Character::isDigit).count();
+    int col = Integer.parseInt(cell.chars().filter(Character::isDigit).collect(StringBuilder::new,StringBuilder::appendCodePoint,StringBuilder::append).toString());
     coords[0] = row;
     coords[1] = col;
     return coords;
@@ -66,6 +66,7 @@ public class Excel3000 {
 
   public void setCell(int row, int col, String value) {
     sheet.put(row, col, value);
+    sheetValues.put(row,col, new CellValue(value,refSign,this));
   }
 
   public void setCell(String cell, String value) throws IllegalArgumentException {
@@ -78,10 +79,13 @@ public class Excel3000 {
     int[] coords = getCoords(variable);
     return getCellValueAt(coords[0], coords[1]);
   }
-  public void evaluate(){
-    for (int i =0; i<sheet.rowMap().size();i++){
-      for (int j=0; j<sheet.columnMap().size();j++){
-        sheet.put(i,j, getCellValueAt(i,j).showResult());
+
+  public void evaluate() {
+    for (Integer i : sheet.rowKeySet()) {
+      for (Integer j : sheet.columnKeySet()) {
+        if (sheet.get(i,j)!=null){
+          sheet.put(i, j, getCellValueAt(i, j).showResult());
+        }
       }
     }
   }
@@ -92,11 +96,7 @@ public class Excel3000 {
   }
 
   private CellValue getCellValueAt(int row, int col) {
-    CellValue value = sheetValues.contains(row,col) ?
-        sheetValues.get(row,col)
-        : new CellValue(getCellAt(row,col),refSign,this);
-    sheetValues.put(row,col, value);
-    return value;
+   return sheetValues.get(row, col);
   }
 }
 

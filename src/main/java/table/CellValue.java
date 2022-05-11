@@ -2,46 +2,96 @@ package table;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 public class CellValue {
+
   private Excel3000 parent;
   private String value;
   private String expString;
   private Expression expression;
   private Set<String> variables = new HashSet<>();
-  private char refSign;
-  private Pattern variablePattern = Pattern.compile("^" + refSign + "[A-Z]+[1-9][0-9]*$");
-
-  public CellValue(String value, char refSign, Excel3000 parent) {
+  private String refSign;
+  private Pattern variablePattern;
+  private Set<CellValue> callSet = new HashSet<>();
+  private boolean visited = false;
+  public CellValue(String value, String refSign, Excel3000 parent) {
     this.parent = parent;
     this.value = value;
     this.expString = value;
     this.refSign = refSign;
+    variablePattern = Pattern.compile("\\" + refSign + "[A-Z]+[0-9]+");
+    if(value == null){
+      value="";
+    }
     if (value.startsWith("=")) {
       extractVariables(value.substring(1));
-      expression = new ExpressionBuilder(value.substring(1).replaceAll("$","")).variables(variables).build();
+      expression = new ExpressionBuilder(value.substring(1).replaceAll("\\$", "")).variables(
+          variables).build();
     } else {
-      expression = new ExpressionBuilder(value).build();
+      if (!value.equals("")) {
+        expression = new ExpressionBuilder(value).build();
+      } else {
+        expression = new ExpressionBuilder("0").build();
+      }
     }
+
   }
 
-  private double evaluate(){
-    for (String variable : variables) {
-      expression.setVariable(variable, parent.getCellValueAt(variable).evaluate());
+  private static boolean checkCircle(CellValue callValue, CellValue caller, CellValue origin) {
+    caller.visited = true;
+    if (caller.callSet.contains(callValue)){
+      return false;
     }
+    if (origin.visited){
+      return true;
+    }
+    for (CellValue value : callValue.callSet) {
+      if (checkCircle(caller,callValue, origin)){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private double evaluate(CellValue caller) throws ArithmeticException {
+    callSet.add(caller);
+    if (checkCircle(this, caller, this)) {
+      visited = false;
+      caller.visited = false;
+      throw new IllegalCallerException(callSet.stream().collect(StringBuilder::new,
+          (StringBuilder sb, CellValue cv) -> sb.append(cv.expString + " "),
+          StringBuilder::append).toString());
+    }
+    for (String variable : variables) {
+      CellValue neededExp = parent.getCellValueAt(variable);
+      expression.setVariable(variable, neededExp.evaluate(this));
+    }
+    visited = false;
+    caller.visited = false;
     return expression.evaluate();
   }
-  public String showResult(){
-    double result = evaluate();
-    value = String.valueOf(result);
-    return value;
+
+  public String showResult() {
+    try {
+      value = String.valueOf(evaluate(this));
+      return value;
+    } catch (IllegalCallerException e) {
+      return "#Cyclic Ref: " + e.getMessage();
+    }
+
   }
-  private void extractVariables(String substring) {
-    variablePattern.matcher(substring).results().forEach(
-        matchResult -> variables.add(matchResult.group().replace(String.valueOf(refSign), "")));
+
+  private void extractVariables(String value) {
+    Matcher matcher = variablePattern.matcher(value);
+    while (matcher.find()) {
+      String group = matcher.group().replaceAll("\\$", "");
+      variables.add(group);
+    }
+
   }
 
   public String getValue() {
