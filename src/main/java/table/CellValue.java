@@ -9,6 +9,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 
 class CellValue {
 
+  public static final String VARIABLE_PATTERN = "[A-Z]+[1-9][0-9]*";
   private Excel3000 parent;
   private String value;
   private String expString;
@@ -20,7 +21,7 @@ class CellValue {
     this.parent = parent;
     this.value = value;
     this.expString = value;
-    variablePattern = Pattern.compile("[A-Z]+[0-9]+");
+    variablePattern = Pattern.compile(VARIABLE_PATTERN);
     if(value == null){
       value="";
     }

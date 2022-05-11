@@ -19,7 +19,8 @@ public class Excel3000 {
   private final Table<Integer, Integer, String> sheet = HashBasedTable.create();
   private final Table<Integer, Integer, CellValue> sheetValues = HashBasedTable.create();
   private static final BiMap<Character, Integer> rowMapping = HashBiMap.create();
-  private static final Pattern cellCoordPattern = Pattern.compile("^[A-Z]+[1-9][0-9]*$");
+  public static final String CELL_CORD_REGEX = "^[A-Z]+[1-9][0-9]*$";
+  private static final Pattern cellCoordPattern = Pattern.compile(CELL_CORD_REGEX);
 
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
