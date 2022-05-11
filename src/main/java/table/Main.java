@@ -25,9 +25,9 @@ public class Main {
 
     //no circle
     excel3001.setCell("A1","4");
-    excel3001.setCell("A2", "=A1+4");
+    excel3001.setCell("A2", "=A3+4");
     excel3001.setCell("A3", "=A6+4");
-    excel3001.setCell("A4", "=A2+4");
+    excel3001.setCell("A4", "=A1+4");
     excel3001.setCell("A5", "=A2+4");
     excel3001.setCell("A6", "=A4+4");
     XlsxWriter.writeToExcellFile("NoCircleNoEval.xlsx",excel3001);

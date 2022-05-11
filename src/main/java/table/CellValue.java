@@ -20,7 +20,6 @@ class CellValue {
     this.parent = parent;
     this.value = value;
     this.expString = value;
-
     variablePattern = Pattern.compile("[A-Z]+[0-9]+");
     if(value == null){
       value="";
@@ -33,12 +32,11 @@ class CellValue {
       if (!value.equals("")) {
         expression = new ExpressionBuilder(value).build();
       } else {
-        expression = new ExpressionBuilder("0").build();
+        expression = null;
       }
     }
 
   }
-
 
   private double evaluate(Set<CellValue> visitedCells) throws ArithmeticException {
     if(visitedCells.contains(this)){
