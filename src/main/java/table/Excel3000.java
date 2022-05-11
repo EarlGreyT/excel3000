@@ -57,8 +57,6 @@ public class Excel3000 {
       row += rowMapping.get(rowChars[i]) * IntMath.pow(
           rowMapping.get(ALPHABET.charAt(ALPHABET.length() - 1)), rowChars.length - (i + 1));
     }
-    System.out.println(cell);
-    System.out.println(row);
     return row;
   }
 
