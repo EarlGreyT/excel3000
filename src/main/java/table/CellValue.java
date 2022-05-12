@@ -11,7 +11,7 @@ class CellValue {
 
   public static final String VARIABLE_PATTERN = "[A-Z]+[1-9][0-9]*";
   private final Excel3000 parent;
-  private String value;
+  private final String value;
   private final Expression expression;
   private final Set<String> variables = new HashSet<>();
 
